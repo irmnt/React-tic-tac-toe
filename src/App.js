@@ -56,15 +56,19 @@ function Board({ xIsNext, squares, onPlay }) {
 export default function Game() {
   const [xIsNext, setIsNext] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const currentSquares = history[history.length - 1];
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
-    setHistory([...history, nextSquares]);
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
     setIsNext(!xIsNext);
   }
 
   function jumpTo(nextMove) {
-    // TODO
+    setCurrentMove(nextMove);
+    setIsNext(nextMove % 2 === 0);
   }
 
   const moves = history.map((squares, move) => {
@@ -72,7 +76,7 @@ export default function Game() {
       ? `Go to move #` + move
       : `Go to game start`;
     return (
-      <li>
+      <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     );
@@ -107,7 +111,6 @@ function calculateWinner(squares) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
-
   }
   return null;
 }
